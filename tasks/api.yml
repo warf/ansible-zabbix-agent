@@ -1,0 +1,63 @@
+---
+- name: "Create hostgroups"
+  local_action:
+    module: zabbix_group
+    server_url: "{{ zabbix_url }}"
+    login_user: "{{ zabbix_api_user }}"
+    login_password: "{{ zabbix_api_pass }}"
+    host_group: "{{ zabbix_host_groups }}"
+    state: "{{ zabbix_create_hostgroup }}"
+    validate_certs: "{{ zabbix_validate_certs|default(omit) }}"
+  when:
+    - zabbix_api_create_hostgroup
+  become: no
+  tags:
+    - api
+
+- name: "Create a new host or update an existing host's info"
+  local_action:
+    module: zabbix_host
+    server_url: "{{ zabbix_url }}"
+    login_user: "{{ zabbix_api_user }}"
+    login_password: "{{ zabbix_api_pass }}"
+    host_name: "{{ zabbix_agent_hostname }}"
+    host_groups: "{{ zabbix_host_groups }}"
+    link_templates: "{{ zabbix_link_templates }}"
+    status: "{{ zabbix_host_status }}"
+    state: "{{ zabbix_create_host }}"
+    force: "{{ zabbix_update_host }}"
+    proxy: "{{ zabbix_proxy }}"
+    inventory_mode: "{{ zabbix_inventory_mode }}"
+    interfaces: "{{ zabbix_agent_interfaces }}"
+    visible_name: "{{ zabbix_visible_hostname|default(zabbix_agent_hostname) }}"
+    tls_psk: "{{ zabbix_agent_tlspsk_secret|default(omit) }}"
+    tls_psk_identity: "{{ zabbix_agent_tlspskidentity|default(omit) }}"
+    tls_issuer: "{{ zabbix_agent_tlsservercertissuer|default(omit) }}"
+    tls_subject: "{{ zabbix_agent_tlsservercertsubject|default(omit) }}"
+    tls_connect: "{{ {'unencrypted': '1', 'psk': '2', 'cert' : '4'}[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted'] }}"
+    tls_accept: "{{ {'unencrypted': '1', 'psk': '2', 'cert' : '4'}[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted'] }}"
+    validate_certs: "{{ zabbix_validate_certs|default(omit) }}"
+  when:
+    - zabbix_api_create_hosts
+  become: no
+  changed_when: false
+  tags:
+    - api
+
+- name: "Updating host configuration with macros"
+  local_action:
+    module: zabbix_hostmacro
+    server_url: "{{ zabbix_url }}"
+    login_user: "{{ zabbix_api_user }}"
+    login_password: "{{ zabbix_api_pass }}"
+    host_name: "{{ zabbix_agent_hostname }}"
+    macro_name: "{{ item.macro_key }}"
+    macro_value: "{{ item.macro_value }}"
+    validate_certs: "{{ zabbix_validate_certs|default(omit) }}"
+  with_items: "{{ zabbix_macros | default([]) }}"
+  when:
+    - zabbix_macros is defined
+    - item.macro_key is defined
+  become: no
+  tags:
+    - api

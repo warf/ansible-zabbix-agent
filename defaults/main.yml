@@ -65,8 +65,9 @@ zabbix_agent_sourceip:
 zabbix_agent_enableremotecommands: 0
 zabbix_agent_logremotecommands: 0
 zabbix_agent_listenport: 10050
-zabbix_agent_listeninterface:
-zabbix_agent_listenip:
+zabbix_agent_listeninterface: 
+zabbix_agent_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4'].address }}"
+zabbix_agent_listenip: "{{ hostvars[inventory_hostname]['ansible_' + zabbix_agent_listeninterface]['ipv4'].address | default('0.0.0.0') }}"
 zabbix_agent_startagents: 3
 zabbix_agent_hostname: "{{ inventory_hostname }}"
 zabbix_agent_hostnameitem:
