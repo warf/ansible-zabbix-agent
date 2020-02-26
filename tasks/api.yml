@@ -14,6 +14,37 @@
   tags:
     - api
 
+- name: "Get info about existing hostgroups"
+  local_action:
+    module: zabbix_group_facts
+    server_url: "{{ zabbix_url }}"
+    login_user: "{{ zabbix_api_user }}"
+    login_password: "{{ zabbix_api_pass }}"
+    hostgroup_name: "{{ zabbix_host_groups }}"
+    # timeout: 10
+  register: zabbix_group_facts
+  become: no
+  tags:
+    - api
+
+- name: "Set zabbix_existing_host_groups when NOT zabbix_api_create_hostgroup"
+  set_fact:
+    zabbix_existing_host_groups: "{{ zabbix_existing_host_groups |default([])
+      + [ item.name ]}}"
+  loop: "{{ zabbix_group_facts.host_groups }}"
+  when:
+    - not zabbix_api_create_hostgroup | bool
+  tags:
+    - api
+
+- name: "Set zabbix_existing_host_groups when zabbix_api_create_hostgroup"
+  set_fact:
+    zabbix_existing_host_groups: "{{ zabbix_host_groups }}"
+  when:
+    - zabbix_api_create_hostgroup | bool
+  tags:
+    - api
+
 - name: "Create a new host or update an existing host's info"
   zabbix_host:
     server_url: "{{ zabbix_url }}"
@@ -22,14 +53,13 @@
     login_user: "{{ zabbix_api_user }}"
     login_password: "{{ zabbix_api_pass }}"
     host_name: "{{ zabbix_agent_hostname }}"
-    host_groups: "{{ item }}"
-    # host_groups: "{{ zabbix_host_groups }}"
+    host_groups: "{{ zabbix_existing_host_groups }}"
     link_templates: "{{ zabbix_link_templates }}"
     status: "{{ zabbix_host_status }}"
     state: "{{ zabbix_create_host }}"
     force: "{{ zabbix_update_host }}"
     proxy: "{{ zabbix_proxy }}"
-    inventory_mode: "{{ zabbix_inventory_mode }}"
+    # inventory_mode: "{{ zabbix_inventory_mode| default('disabled')}}"
     interfaces: "{{ zabbix_agent_interfaces }}"
     visible_name: "{{ zabbix_visible_hostname|default(zabbix_agent_hostname) }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret|default(omit) }}"
@@ -43,12 +73,10 @@
   when:
     - zabbix_api_create_hosts
   register: zabbix_api_host_created
-  # until: zabbix_api_host_created is succeeded
+  until: zabbix_api_host_created is succeeded
   delegate_to: localhost
   become: no
   changed_when: false
-  loop: "{{ zabbix_host_groups }}"
-  ignore_errors: true
   tags:
     - api
 
