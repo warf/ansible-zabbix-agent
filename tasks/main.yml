@@ -54,11 +54,10 @@
 - name: "Congire zabbix server via API"
   include_tasks: api.yml
   when:
-    - zabbix_api_create_hostgroup | bool
-    - zabbix_api_create_hosts | bool
-    - zabbix_api_user
-    - zabbix_api_pass
-    - zabbix_url
+    - ((zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool))
+    - zabbix_api_user is defined
+    - zabbix_api_pass is defined
+    - zabbix_url is defined
   tags:
     - api
 
