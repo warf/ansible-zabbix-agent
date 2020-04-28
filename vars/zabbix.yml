@@ -2,6 +2,8 @@
 
 sign_keys:
   "44":
+    focal:
+      sign_key: A14FE591
     bionic:
       sign_key: A14FE591
     sonya:
