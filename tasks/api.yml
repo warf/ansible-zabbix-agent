@@ -75,6 +75,7 @@
   register: zabbix_api_host_created
   until: zabbix_api_host_created is succeeded
   delegate_to: localhost
+  connection: local
   become: no
   changed_when: false
   tags:
