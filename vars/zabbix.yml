@@ -1,8 +1,28 @@
 ---
-
 sign_keys:
+  "50":
+    buster:
+      sign_key: E709712C
+    stretch:
+      sign_key: E709712C
+    jessie:
+      sign_key: E709712C
+    focal:
+      sign_key: E709712C
+    bionic:
+      sign_key: E709712C
+    xenial:
+      sign_key: E709712C
+    trusty:
+      sign_key: E709712C
+    tricia:
+      sign_key: E709712C
   "44":
     focal:
+      sign_key: A14FE591
+    eoan:
+      sign_key: A14FE591
+    cosmic:
       sign_key: A14FE591
     bionic:
       sign_key: A14FE591
@@ -23,6 +43,12 @@ sign_keys:
     xenial:
       sign_key: E709712C
   "42":
+    focal:
+      sign_key: A14FE591
+    eoan:
+      sign_key: A14FE591
+    cosmic:
+      sign_key: A14FE591
     bionic:
       sign_key: A14FE591
     sonya:
